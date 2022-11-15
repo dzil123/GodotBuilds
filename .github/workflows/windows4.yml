@@ -1,13 +1,19 @@
 name: 🪟️ Windows Builds 4
 on:
-  push:
-  pull_request:
-  schedule:
-    - cron: '0 23 * * *'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "branch"
+        required: true
+        type: string
+      matrix_name:
+        description: "only run this matrix"
+        required: true
+        type: string
+        default: "windows4-editor-sanitizers"
 
 
 env:
-  GODOT_BASE_BRANCH: master
   SCONSFLAGS: dev_build=yes
 
 jobs:
@@ -31,12 +37,18 @@ jobs:
             artifact: true
 
     steps:
+      - name: fail if not the selected matrix
+        shell: bash
+        if: ${{ matrix.cache-name != inputs.matrix_name }}
+        run: |
+          exit 1
+
       - uses: actions/checkout@v3
       
       - uses: actions/checkout@v3
         with:
-          repository: godotengine/godot
-          ref: ${{ env.GODOT_BASE_BRANCH }}
+          repository: dzil123/godot
+          ref: ${{ inputs.branch }}
           path: godot
 
       - name: Configuring Python packages
@@ -66,4 +78,3 @@ jobs:
         with:
           name: ${{matrix.executable_name}}
           path: bin/
-

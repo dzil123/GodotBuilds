@@ -1,14 +1,19 @@
 name: 🐧 Linux Builds 3x
 on:
-  push:
-  pull_request:
-  schedule:
-    - cron: '0 23 * * *'
-
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "branch"
+        required: true
+        type: string
+      matrix_name:
+        description: "only run this matrix"
+        required: true
+        type: string
+        default: "linux3x-editor-sanitizers"
 
 # Global Settings 
 env:
-  GODOT_BASE_BRANCH: 3.x
   SCONSFLAGS: debug_symbols=yes
 
 jobs:
@@ -131,12 +136,18 @@ jobs:
 #            artifact: true
             
     steps:
+      - name: fail if not the selected matrix
+        shell: bash
+        if: ${{ matrix.cache-name != inputs.matrix_name }}
+        run: |
+          exit 1
+
       - uses: actions/checkout@v3
       
       - uses: actions/checkout@v3
         with:
-          repository: godotengine/godot
-          ref: ${{ env.GODOT_BASE_BRANCH }}
+          repository: dzil123/godot
+          ref: ${{ inputs.branch }}
           path: godot
 
       - name: Linux dependencies
@@ -197,4 +208,3 @@ jobs:
         if: ${{ matrix.artifact }}
         with:
           name: ${{ matrix.cache-name }}
-
