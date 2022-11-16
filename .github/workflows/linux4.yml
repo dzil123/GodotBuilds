@@ -16,6 +16,8 @@ on:
 # Global Settings
 env:
   SCONSFLAGS: dev_build=yes CCFLAGS="-fpie" LINKFLAGS="-no-pie"
+  SCONS_CACHE: "${{github.workspace}}/.scons-cache/"
+  SCONS_CACHE_LIMIT: 4096
 
 jobs:
   build-godot4:
